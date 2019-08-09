@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -ex
+
+if [[ -d deploy ]]; then
+  rm -rf deploy
+fi
+
+mkdir deploy
+cp -r $(nix-build --no-out-link)/* deploy
+chmod u+rwx -R deploy
+netlify deploy --prod
