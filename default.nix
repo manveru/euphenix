@@ -1,11 +1,18 @@
 { pkgs ? import ./nixpkgs.nix }@globalArgs:
 let
   inherit (builtins)
-    placeholder baseNameOf readDir attrValues fromJSON readFile mapAttrs toJSON
-    toFile listToAttrs trace;
+    attrValues baseNameOf fromJSON listToAttrs mapAttrs pathExists placeholder
+    readDir readFile toFile toJSON trace;
+
+  inherit (pkgs)
+    bash coreutils euphenixYarnPackages glibcLocales gnused imagemagick infuse
+    makeWrapper stdenv;
+
   inherit (pkgs.lib)
-    hasPrefix sort makeBinPath concatMapStrings subtractLists attrByPath
-    assertMsg;
+    assertMsg attrByPath concatMapStrings hasPrefix makeBinPath optional sort
+    subtractLists;
+
+  inherit (pkgs.rubyEnv) wrappedRuby;
 
 in rec {
   pp = value: trace (toJSON value) value;
@@ -18,7 +25,7 @@ in rec {
     derivation (givenArgs // {
       out = placeholder "out";
       system = builtins.currentSystem;
-      builder = "${pkgs.bash}/bin/bash";
+      builder = "${bash}/bin/bash";
       args = [
         "-e"
         (toFile "builder.sh" ''
@@ -41,9 +48,9 @@ in rec {
     let
       generated = mkDerivation {
         name = "parseTemplates";
-        PATH = makeBinPath [ pkgs.rubyEnv.wrappedRuby ];
+        PATH = makeBinPath [ wrappedRuby ];
         inherit dir;
-        LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
+        LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
         LC_ALL = "en_US.UTF-8";
 
         buildCommand = ''
@@ -56,9 +63,9 @@ in rec {
     let
       generated = mkDerivation {
         name = "cssDeps";
-        PATH = makeBinPath [ pkgs.rubyEnv.wrappedRuby ];
+        PATH = makeBinPath [ wrappedRuby ];
         inherit src;
-        LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
+        LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
         LC_ALL = "en_US.UTF-8";
 
         buildCommand = ''
@@ -77,8 +84,8 @@ in rec {
   parseMarkdown = src:
     fromJSON (readFile (mkDerivation {
       name = "md2Meta";
-      PATH = makeBinPath [ pkgs.rubyEnv.wrappedRuby ];
-      LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
+      PATH = makeBinPath [ wrappedRuby ];
+      LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
       LC_ALL = "en_US.UTF-8";
 
       buildCommand = ''
@@ -89,7 +96,7 @@ in rec {
   copyFiles = from: to:
     mkDerivation {
       name = "copyFiles";
-      PATH = makeBinPath [ pkgs.coreutils ];
+      PATH = makeBinPath [ coreutils ];
       inherit from to;
 
       buildCommand = ''
@@ -107,7 +114,7 @@ in rec {
         "convert -background none ${source} -define icon:auto-resize=32,64 +repage ico:- > $out/favicons/favicon.ico";
     in mkDerivation {
       name = "favicons";
-      PATH = makeBinPath (with pkgs; [ coreutils imagemagick ]);
+      PATH = makeBinPath [ coreutils imagemagick ];
 
       buildCommand = ''
         mkdir -p $out/favicons
@@ -125,11 +132,10 @@ in rec {
       name = "mkPostCSS";
       __structuredAttrs = true;
       inherit imports fileName;
-      PATH =
-        "${pkgs.coreutils}/bin:${pkgs.euphenixYarnPackages}/node_modules/.bin";
+      PATH = "${coreutils}/bin:${euphenixYarnPackages}/node_modules/.bin";
 
       buildCommand = ''
-        export LOCALE_ARCHIVE="${pkgs.glibcLocales}/lib/locale/locale-archive"
+        export LOCALE_ARCHIVE="${glibcLocales}/lib/locale/locale-archive"
         export LC_ALL="en_US.UTF-8"
 
         target=$out/$(dirname $fileName)
@@ -175,7 +181,7 @@ in rec {
       definitions = concatMapStrings (f: ''-d "${f}" '') page.imports;
     in mkDerivation {
       name = "mkRoute-${baseNameOf tmpl}";
-      PATH = with pkgs; makeBinPath [ coreutils infuse gnused ];
+      PATH = makeBinPath [ coreutils infuse gnused ];
       imports = (map (i: toFile "__${i}" (readFile (templateDir + "/${i}")))
         page.imports);
       buildCommand = ''
@@ -242,26 +248,29 @@ in rec {
     in compact (attrValues compiledTemplates);
 
   build = { rootDir, cssDir ? null, templateDir ? null, staticDir ? null
-    , contentDir ? null, favicon ? null, variables ? null, layout
-    , cssCompiler ? null }@givenBuildArgs:
+    , favicon ? null, variables ? null, layout
+    , cssCompiler ? null, extraPargs ? null }@givenBuildArgs:
 
     let
       buildArgs = {
         cssDir = rootDir + "/css";
         templateDir = rootDir + "/templates";
         staticDir = rootDir + "/static";
-        contentDir = rootDir + "/content";
         variables = { };
         cssCompiler = mkPostCSS;
+        favicon = null;
+        extraParts = [ ];
       } // givenBuildArgs;
-      inherit (buildArgs) favicon staticDir;
 
+      inherit (buildArgs) favicon staticDir extraParts;
     in mkDerivation {
       name = "euphenix";
 
-      parts =
-        [ (routes buildArgs) (mkFavicons favicon) (copyFiles staticDir "/") ];
-      PATH = makeBinPath [ pkgs.coreutils ];
+      parts = [ (routes buildArgs) ]
+        ++ (optional (pathExists staticDir) (copyFiles staticDir "/"))
+        ++ (optional (favicon != null) (mkFavicons favicon)) ++ extraParts;
+
+      PATH = makeBinPath [ coreutils ];
 
       buildCommand = ''
         mkdir -p $out
@@ -273,15 +282,15 @@ in rec {
       '';
     };
 
-  euphenix = pkgs.stdenv.mkDerivation {
+  euphenix = stdenv.mkDerivation {
     pname = "euphenix";
     version = "0.0.1";
-    buildInputs = [ pkgs.makeWrapper ];
-    phases = ["installPhase"];
+    buildInputs = [ makeWrapper ];
+    phases = [ "installPhase" ];
     installPhase = ''
       mkdir -p $out/bin
       makeWrapper ${./bin/euphenix} $out/bin/euphenix \
-        --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.rubyEnv.wrappedRuby ]}
+        --prefix PATH : ${makeBinPath [ wrappedRuby ]}
     '';
   };
 }
