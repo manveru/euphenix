@@ -1,10 +1,11 @@
 { pkgs ? import ./nixpkgs.nix }@globalArgs:
 let
   inherit (builtins)
-    attrNames placeholder replaceStrings baseNameOf readDir attrValues fromJSON
-    readFile mapAttrs toJSON toFile listToAttrs pathExists trace;
+    placeholder baseNameOf readDir attrValues fromJSON readFile mapAttrs toJSON
+    toFile listToAttrs trace;
   inherit (pkgs.lib)
-    take sort makeBinPath concatMapStrings subtractLists attrByPath;
+    hasPrefix sort makeBinPath concatMapStrings subtractLists attrByPath
+    assertMsg;
 
   pp = value: trace (toJSON value) value;
   compact = subtractLists [ null ];
@@ -101,16 +102,16 @@ in rec {
   mkFavicons = source:
     let
       convertPNG = size:
-        "convert -background none ${source} -resize ${size}x${size}! +repage $out/images/favicons/favicon${size}.png";
+        "convert -background none ${source} -resize ${size}x${size}! +repage $out/favicons/favicon${size}.png";
 
       convertICO =
-        "convert -background none ${source} -define icon:auto-resize=32,64 +repage ico:- > $out/images/favicons/favicon.ico";
+        "convert -background none ${source} -define icon:auto-resize=32,64 +repage ico:- > $out/favicons/favicon.ico";
     in mkDerivation {
       name = "favicons";
       PATH = makeBinPath (with pkgs; [ coreutils imagemagick ]);
 
       buildCommand = ''
-        mkdir -p $out/images/favicons
+        mkdir -p $out/favicons
         ${convertICO}
         ${convertPNG "32"}
         ${convertPNG "57"}
@@ -151,7 +152,7 @@ in rec {
     tmpl: page:
     let routeMaps = attrByPath [ "meta" "routeMaps" ] null page;
     in map (item:
-    ( mkRoute args) tmpl ({
+    (mkRoute args) tmpl ({
       body = readFile (wrapBody args tmpl page item);
       imports = page.imports;
       meta = page.meta // item.meta // { route = item.url; };
@@ -221,6 +222,11 @@ in rec {
       '';
     };
 
+  assertRoute = route: file:
+    assert (assertMsg (hasPrefix "/" route)
+    "route in ${file} must begin with a slash '/'");
+    true;
+
   routes = { templateDir, ... }@args:
     let
       parsedTemplates = parseTemplates templateDir;
@@ -228,29 +234,28 @@ in rec {
         let
           route = attrByPath [ "meta" "route" ] null v;
           routeMaps = attrByPath [ "meta" "routeMaps" ] null v;
-        in if route != null then
+        in if route != null && assertRoute route k then
           ((mkRoute args) (templateDir + "/${k}") v)
         else if routeMaps != null then
-          (( mkRoutes args) (templateDir + "/${k}") v)
+          ((mkRoutes args) (templateDir + "/${k}") v)
         else
           null) parsedTemplates;
     in compact (attrValues compiledTemplates);
 
-  build = { rootDir, cssDir ? null
-    , templateDir ? null, staticDir ? null
-    , contentDir ? null
-    , favicon ? null, variables ? null, layout
+  build = { rootDir, cssDir ? null, templateDir ? null, staticDir ? null
+    , contentDir ? null, favicon ? null, variables ? null, layout
     , cssCompiler ? null }@givenBuildArgs:
 
     let
-  buildArgs = { cssDir = rootDir + "/css"
-    ; templateDir = rootDir + "/templates"
-    ; staticDir = rootDir + "/static"
-    ; contentDir = rootDir + "/content"
-    ; favicon = staticDir + "/images/favicon.svg"
-    ; variables = { }
-    ; cssCompiler = mkPostCSS; } // givenBuildArgs;
-    inherit (buildArgs) favicon staticDir;
+      buildArgs = {
+        cssDir = rootDir + "/css";
+        templateDir = rootDir + "/templates";
+        staticDir = rootDir + "/static";
+        contentDir = rootDir + "/content";
+        variables = { };
+        cssCompiler = mkPostCSS;
+      } // givenBuildArgs;
+      inherit (buildArgs) favicon staticDir;
 
     in mkDerivation {
       name = "euphenix";

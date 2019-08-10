@@ -1,0 +1,123 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'cmdparse'
+require 'fileutils'
+require 'webrick'
+require 'digest/sha2'
+require 'irb'
+
+# TODO: consolidate scripts into this executable
+
+class Euphenix
+  VERSION = "0.0.1"
+
+  def self.parser
+    parser = CmdParse::CommandParser.new(handle_exceptions: :no_help)
+    parser.main_options.program_name = 'euphenix'
+    parser.main_options.version = Euphenix::VERSION
+    parser.main_options.banner = 'Site building on Nix'
+
+    parser.global_options do |opt|
+      parser.data = { verbose: false }
+
+      opt.on('--verbose', 'output everything that might help with problems') do
+        $VERBOSE = parser.data[:verbose] = true
+      end
+    end
+
+    parser.add_command(CmdParse::HelpCommand.new)
+    parser.add_command(CmdParse::VersionCommand.new)
+
+    parser.add_command(Init.new, default: true)
+    parser.add_command(Server.new)
+
+    parser
+  end
+
+  class Command < CmdParse::Command
+    def params
+      option_chain([self]).reverse.map(&:data).reduce(&:merge)
+    end
+
+    def option_chain(all)
+      this = all.last
+      return all unless this.respond_to?(:super_command)
+
+      option_chain(all << this.super_command)
+    end
+  end
+
+  class Init < Command
+    def initialize
+      super 'init', takes_commands: false
+
+      @data = {}
+
+      options.on('-f', '--force', 'force overwriting files') do
+        data[:force] = true
+      end
+    end
+
+    def execute
+      Dir.glob(File.expand_path('../example/**/*', __dir__)) do |file|
+        copy file
+      end
+    end
+
+    def copy(file)
+      if File.file?(file)
+        warn "won't override existing default.nix but here's what it'd look like:"
+        puts template
+      else
+        FileUtils.cp(file, ".")
+      end
+    end
+  end
+
+  class NonCachingFileHandler < WEBrick::HTTPServlet::FileHandler
+    def prevent_caching(res)
+      if res.body.respond_to?(:path)
+        res['ETag'] = Digest::SHA256.file(res.body.path)
+      else
+        res['ETag'] = nil
+      end
+      res['Last-Modified'] = Time.at(0)
+      res['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
+      res['Pragma']        = 'no-cache'
+      res['Expires']       = Time.at(9999999999)
+    end
+
+    def do_GET(req, res)
+      super
+      prevent_caching(res)
+    end
+
+    def do_HEAD(req, res)
+      super
+      prevent_caching(res)
+    end
+  end
+
+  class Server < Command
+    def initialize
+      super 'server', takes_commands: false
+
+      @data = { port: 8000 }
+
+      options.on('-p', '--port', 'port') do |value|
+        data[:port] = value
+      end
+    end
+
+    def execute
+      server = ::WEBrick::HTTPServer.new Port: params[:port]
+
+      server.mount '/', NonCachingFileHandler, Dir.pwd + "/result"
+      trap('INT') { server.stop }
+      server.start
+    end
+  end
+end
+
+Euphenix.parser.parse

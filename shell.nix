@@ -5,7 +5,7 @@ pkgs.mkShell {
     yarn
     yarn2nix
     infuse
-    rubyEnv.wrappedRuby
+    rubyDevEnv.wrappedRuby
   ];
 
   LOCALE_ARCHIVE = "${buildPackages.glibcLocales}/lib/locale/locale-archive";

@@ -41,11 +41,18 @@ in import nixpkgsSource {
         '';
       };
 
-      # 2.5 is a bit faster than 2.6
       rubyEnv = super.bundlerEnv {
         ruby = super.ruby_2_5;
         name = "euphenix-gems";
         gemdir = ./.;
+        groups = [ "default" ];
+      };
+
+      rubyDevEnv = super.bundlerEnv {
+        ruby = super.ruby_2_5;
+        name = "euphenix-gems";
+        gemdir = ./.;
+        groups = [ "default" "development" ];
       };
 
       inherit srcWithout;
