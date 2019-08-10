@@ -7,10 +7,9 @@ let
     hasPrefix sort makeBinPath concatMapStrings subtractLists attrByPath
     assertMsg;
 
+in rec {
   pp = value: trace (toJSON value) value;
   compact = subtractLists [ null ];
-
-in rec {
   sortByRecent = sort (a: b: a.meta.date > b.meta.date);
 
   # we use our own derivation because we don't need all the overhead of stdenv
@@ -273,4 +272,16 @@ in rec {
         done
       '';
     };
+
+  euphenix = pkgs.stdenv.mkDerivation {
+    pname = "euphenix";
+    version = "0.0.1";
+    buildInputs = [ pkgs.makeWrapper ];
+    phases = ["installPhase"];
+    installPhase = ''
+      mkdir -p $out/bin
+      makeWrapper ${./bin/euphenix} $out/bin/euphenix \
+        --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.rubyEnv.wrappedRuby ]}
+    '';
+  };
 }
