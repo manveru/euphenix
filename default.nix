@@ -285,12 +285,12 @@ in rec {
   euphenix = stdenv.mkDerivation {
     pname = "euphenix";
     version = "0.0.1";
-    buildInputs = [ makeWrapper ];
+    nativeBuildInputs = [ makeWrapper wrappedRuby ];
     phases = [ "installPhase" ];
     installPhase = ''
       mkdir -p $out/bin
-      makeWrapper ${./bin/euphenix} $out/bin/euphenix \
-        --prefix PATH : ${makeBinPath [ wrappedRuby ]}
+      cp ${./bin/euphenix} $out/bin/euphenix
+      patchShebangs $out/bin/euphenix
     '';
   };
 }
