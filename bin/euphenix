@@ -10,7 +10,7 @@ require 'irb'
 # TODO: consolidate scripts into this executable
 
 class Euphenix
-  VERSION = "0.0.1"
+  VERSION = '0.0.1'
 
   def self.parser
     parser = CmdParse::CommandParser.new(handle_exceptions: :no_help)
@@ -70,22 +70,20 @@ class Euphenix
         warn "won't override existing default.nix but here's what it'd look like:"
         puts template
       else
-        FileUtils.cp(file, ".")
+        FileUtils.cp(file, '.')
       end
     end
   end
 
   class NonCachingFileHandler < WEBrick::HTTPServlet::FileHandler
     def prevent_caching(res)
-      if res.body.respond_to?(:path)
-        res['ETag'] = Digest::SHA256.file(res.body.path)
-      else
-        res['ETag'] = nil
-      end
+      res['ETag'] = if res.body.respond_to?(:path)
+                      Digest::SHA256.file(res.body.path)
+                    end
       res['Last-Modified'] = Time.at(0)
       res['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
       res['Pragma']        = 'no-cache'
-      res['Expires']       = Time.at(9999999999)
+      res['Expires']       = Time.at(9_999_999_999)
     end
 
     def do_GET(req, res)
@@ -113,7 +111,7 @@ class Euphenix
     def execute
       server = ::WEBrick::HTTPServer.new Port: params[:port]
 
-      server.mount '/', NonCachingFileHandler, Dir.pwd + "/result"
+      server.mount '/', NonCachingFileHandler, Dir.pwd + '/result'
       trap('INT') { server.stop }
       server.start
     end
