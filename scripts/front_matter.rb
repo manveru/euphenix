@@ -25,12 +25,17 @@ when '.md'
   require 'date'
   require 'redcarpet'
 
-  s.scan_until(/---\n/)
-  front = s.scan_until(/---\n/)
-  front_match = s.matched
-  teaser = s.scan_until(/<!--\s*more\s*-->/)
-  teaser_match = s.matched
-  s.unscan if teaser
+  front = teaser = nil
+
+  # only consider the start of the file for front-matter
+  if s.scan(/---\n/)
+    front = s.scan_until(/---\n/)
+    front_match = s.matched
+    teaser = s.scan_until(/<!--\s*more\s*-->/)
+    teaser_match = s.matched
+    s.unscan if teaser
+  end
+
   markdown_source = s.rest
 
   markdown = Redcarpet::Markdown.new(
@@ -42,13 +47,15 @@ when '.md'
     with_toc_data: true
   )
 
-  result = { 'teaser' => '' }
+  result = { 'teaser' => '', 'meta' => {} }
 
   if front
     yaml = "---\n" + front[0..-(front_match.size + 1)]
     meta = YAML.safe_load(yaml, [Date]) if front
     if meta['title']
-      meta['slug'] ||= meta['title'].strip.gsub(%r([;/?:@=&"<>#%{}|\\^~\[\]]+), '-')
+      meta['slug'] ||= meta['title'].strip.gsub(
+        %r([;/?:@=&"<>#%{}|\\^~\[\]]+), '-'
+      )
     end
     result['meta'] = meta
   end
@@ -58,7 +65,9 @@ when '.md'
     result['teaser'] = markdown.render(md)
   end
 
-  result['body'] = markdown.render(markdown_source.gsub(/<!--\s*more\s*-->/, ''))
+  result['body'] = markdown.render(
+    markdown_source.gsub(/<!--\s*more\s*-->/, '')
+  )
 end
 
 puts JSON.pretty_unparse(result)
