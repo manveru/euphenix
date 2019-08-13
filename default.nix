@@ -6,11 +6,11 @@ let
 
   inherit (pkgs)
     bash coreutils euphenixYarnPackages glibcLocales gnused imagemagick infuse
-    makeWrapper stdenv;
+    makeWrapper stdenv image_optim gnugrep;
 
   inherit (pkgs.lib)
     assertMsg attrByPath concatMapStrings hasPrefix makeBinPath optional sort
-    subtractLists;
+    subtractLists concatStringsSep;
 
   inherit (pkgs.rubyEnv) wrappedRuby;
 
@@ -96,12 +96,14 @@ in rec {
   copyFiles = from: to:
     mkDerivation {
       name = "copyFiles";
-      PATH = makeBinPath [ coreutils ];
+      PATH = makeBinPath [ coreutils image_optim gnugrep ];
       inherit from to;
 
       buildCommand = ''
         mkdir -p $out$to
         cp -r "$from"/* $out$to
+        chmod -R u+w $out
+        image_optim -r $out
       '';
     };
 
