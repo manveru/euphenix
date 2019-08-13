@@ -254,12 +254,13 @@ in rec {
           null) parsedTemplates;
     in compact (attrValues compiledTemplates);
 
-  build = { rootDir, cssDir ? null, templateDir ? null, staticDir ? null
-    , favicon ? null, variables ? null, layout
-    , cssCompiler ? null, extraPargs ? null }@givenBuildArgs:
+  build = { rootDir, name ? null, cssDir ? null, templateDir ? null, staticDir ? null
+    , favicon ? null, variables ? null, layout, cssCompiler ? null
+    , extraPargs ? null }@givenBuildArgs:
 
     let
       buildArgs = {
+        name = baseNameOf rootDir;
         cssDir = rootDir + "/css";
         templateDir = rootDir + "/templates";
         staticDir = rootDir + "/static";
@@ -269,9 +270,9 @@ in rec {
         extraParts = [ ];
       } // givenBuildArgs;
 
-      inherit (buildArgs) favicon staticDir extraParts;
+      inherit (buildArgs) name favicon staticDir extraParts;
     in mkDerivation {
-      name = "euphenix";
+      inherit name;
 
       parts = [ (routes buildArgs) ]
         ++ (optional (pathExists staticDir) (copyFiles staticDir "/"))
