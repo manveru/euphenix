@@ -40,7 +40,7 @@ in rec {
 
   loadPosts = baseUrl: location:
     (attrValues (mapAttrs (k: v:
-    let markdown = parseMarkdown "${location + "/${k}"}";
+    let markdown = parseMarkdown { } "${location + "/${k}"}";
     in (markdown // { url = "${baseUrl}${markdown.meta.slug}.html"; }))
     (readDir location)));
 
@@ -81,15 +81,19 @@ in rec {
       value = "${src + "/${v}"}";
     }) allDeps."${entryPoint}");
 
-  parseMarkdown = src:
-    fromJSON (readFile (mkDerivation {
+  parseMarkdown = args: src:
+    let
+      flags = concatStringsSep " " (attrValues
+        (mapAttrs (k: v: if v == true then "--${k}" else "--${k}=${toString v}")
+        args));
+    in fromJSON (readFile (mkDerivation {
       name = "md2Meta";
       PATH = makeBinPath [ wrappedRuby ];
       LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
       LC_ALL = "en_US.UTF-8";
 
       buildCommand = ''
-        ruby ${./scripts/front_matter.rb} "${src}" > $out
+        ruby ${./scripts/front_matter.rb} ${flags} "${src}" > $out
       '';
     }));
 
