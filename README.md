@@ -1,7 +1,7 @@
 # EupheNix
 
 This is a static site generator that uses [Nix](https://nixos.org/nix),
-[Ruby](https://ruby-lang.org), and [infuse](https://github.com/jucardi/infuse).
+[Ruby](https://www.ruby-lang.org/en/), and [infuse](https://github.com/jucardi/infuse).
 
 My goal was to ensure reproducible site builds, and ease of use. The prior is
 provided by Nix, and the latter is of course subjective.
@@ -14,19 +14,26 @@ next step.
 
 To build the executable, you can run:
 
-    nix build -f https://github.com/manveru/euphenix/archive/master.tar.gz euphenix --out-link euphenix
+```shell-session
+nix build -f https://github.com/manveru/euphenix/archive/master.tar.gz \
+  euphenix --out-link euphenix
+```
 
 It will then be located in `./euphenix/bin/euphenix`. If you want to add it to your user profile, use:
 
-    nix-env -if ./euphenix
+```shell-session
+nix-env -if ./euphenix
+```
 
 For declarative installation, use this instead:
 
-    let
-      euphenixSource = import (fetchTarball {
-        url = https://github.com/manveru/euphenix/archive/master.tar.gz;
-      }) { };
-    in euphenixSource.euphenix
+```nix
+let
+  euphenixSource = import (fetchTarball {
+    url = https://github.com/manveru/euphenix/archive/master.tar.gz;
+  }) { };
+in euphenixSource.euphenix
+```
 
 And then, depending on your system add `euphenixSource.eupehnix` to your
 `environment.systemPackages` (on NixOS) or `home.packages` (in case of
