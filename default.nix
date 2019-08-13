@@ -134,22 +134,23 @@ in rec {
       inherit imports fileName;
       PATH = "${coreutils}/bin:${euphenixYarnPackages}/node_modules/.bin";
 
-      buildCommand = ''
-        export LOCALE_ARCHIVE="${glibcLocales}/lib/locale/locale-archive"
-        export LC_ALL="en_US.UTF-8"
+      LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
+      LC_ALL = "en_US.UTF-8";
 
-        target=$out/$(dirname $fileName)
-        mkdir -p $target
+      buildCommand = ''
+        mkdir -p $out
 
         for i in "''${!imports[@]}"; do
           cp "''${imports[$i]}" $i
         done
 
         postcss "$fileName" \
+          --map \
           -u postcss-import \
           -u postcss-cssnext \
           -u css-mqpacker \
-          -o "$out/$fileName"
+          -u cssnano \
+          --dir "$out"
       '';
     };
 
@@ -196,7 +197,7 @@ in rec {
         sed 's!{{ yield }}!{{template "__body.tmpl" .}}!' ${layout} > __layout.tmpl
         ${if compiledCSS != "" then ''
           mkdir -p $out/css
-          cp -r "${compiledCSS}/${metaData.css}" $out/css
+          cp -r ${compiledCSS}/* $out/css
         '' else
           ""}
         infuse -f ${metaJSON} ${definitions} -d __body.tmpl __layout.tmpl -o result
