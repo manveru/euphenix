@@ -1,37 +1,32 @@
-{ pkgs ? import ./nixpkgs.nix, overrides ? x: { } }:
-let
-  inherit (builtins) trace toJSON;
+{ pkgs ? import ./nixpkgs.nix }:
 
-  callPackage = pkgs.lib.callPackageWith stdlib;
+( pkgs.lib.makeExtensible (self: {
+  callPackage = pkgs.lib.callPackageWith self;
 
-  fixedPoint = rec {
-    inherit pkgs;
-    inherit (pkgs)
-      lib coreutils bash glibcLocales infuse gnused euphenixYarnPackages
-      imagemagick stdenv makeWrapper;
-    ruby = pkgs.rubyEnv.wrappedRuby;
+  inherit pkgs;
+  inherit (pkgs)
+    lib coreutils bash glibcLocales infuse gnused euphenixYarnPackages
+    imagemagick stdenv makeWrapper;
+  ruby = pkgs.rubyEnv.wrappedRuby;
 
-    pp = value: trace (toJSON value) value;
-    compact = pkgs.lib.subtractLists [ null ];
-    sortByRecent = pkgs.lib.sort (a: b: a.meta.date > b.meta.date);
-
-    build = callPackage ./lib/build.nix { };
-    copyFiles = callPackage ./lib/copyFiles.nix { };
-    cssDeps = callPackage ./lib/cssDeps.nix { };
-    cssDepsFor = callPackage ./lib/cssDepsFor.nix { };
-    loadPosts = callPackage ./lib/loadPosts.nix { };
-    mkDerivation = callPackage ./lib/mkDerivation.nix { };
-    mkFavicons = callPackage ./lib/mkFavicons.nix { };
-    mkPostCSS = callPackage ./lib/mkPostCSS.nix { };
-    mkRoute = callPackage ./lib/mkRoute.nix { cssCompiler = mkPostCSS; };
-    mkRoutes = callPackage ./lib/mkRoutes.nix { };
-    parseMarkdown = callPackage ./lib/parseMarkdown.nix { };
-    parseTemplates = callPackage ./lib/parseTemplates.nix { };
-    routes = callPackage ./lib/routes.nix { };
-    wrapBody = callPackage ./lib/wrapBody.nix { };
-    euphenix = callPackage ./pkgs/euphenix.nix { };
-  };
-
-  stdlib = fixedPoint // (overrides fixedPoint);
-
-in stdlib
+  pp = value: builtins.trace (builtins.toJSON value) value;
+  compact = pkgs.lib.subtractLists [ null ];
+  sortByRecent = pkgs.lib.sort (a: b: a.meta.date > b.meta.date);
+}) ).extend (self: super: {
+  build = super.callPackage ./lib/build.nix { };
+  copyFiles = super.callPackage ./lib/copyFiles.nix { };
+  cssDeps = super.callPackage ./lib/cssDeps.nix { };
+  cssDepsFor = super.callPackage ./lib/cssDepsFor.nix { };
+  loadPosts = super.callPackage ./lib/loadPosts.nix { };
+  mkDerivation = super.callPackage ./lib/mkDerivation.nix { };
+  mkFavicons = super.callPackage ./lib/mkFavicons.nix { };
+  mkPostCSS = super.callPackage ./lib/mkPostCSS.nix { };
+  mkRoute =
+    super.callPackage ./lib/mkRoute.nix { cssCompiler = self.mkPostCSS; };
+  mkRoutes = super.callPackage ./lib/mkRoutes.nix { };
+  parseMarkdown = super.callPackage ./lib/parseMarkdown.nix { };
+  parseTemplates = super.callPackage ./lib/parseTemplates.nix { };
+  routes = super.callPackage ./lib/routes.nix { };
+  wrapBody = super.callPackage ./lib/wrapBody.nix { };
+  euphenix = super.callPackage ./pkgs/euphenix.nix { };
+})
