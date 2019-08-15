@@ -1,9 +1,12 @@
 { lib, mkDerivation, coreutils, infuse, gnused, cssCompiler }:
 let inherit (builtins) toFile toJSON readFile;
-in { variables, cssDir, layout, templateDir, ... }:
+in { variables, expensiveVariables, cssDir, layout, templateDir, ... }:
 tmpl: page:
 let
-  metaData = (variables // page.meta // { inherit body; });
+  cheapMetaData = (variables // page.meta // { inherit body; });
+  metaData = if cheapMetaData ? requires then
+    cheapMetaData // (builtins.listToAttrs (map (key: {name = key; value = expensiveVariables."${key}"; }) (lib.toList cheapMetaData.requires )))
+  else cheapMetaData;
 
   style = if metaData ? css then {
     cssTag = ''<link rel="stylesheet" href="/css/${metaData.css}" />'';

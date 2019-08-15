@@ -1,6 +1,6 @@
 { lib, mkRoute, wrapBody }:
 let inherit (builtins) readFile;
-in { variables, ... }@args:
+in { expensiveVariables, variables, ... }@args:
 tmpl: page:
 let routeMaps = lib.attrByPath [ "meta" "routeMaps" ] null page;
 in map (item:
@@ -8,4 +8,4 @@ in map (item:
     body = readFile (wrapBody args tmpl page item);
     imports = page.imports;
     meta = page.meta // item.meta // { route = item.url; };
-  })) variables."${routeMaps}"
+  })) (variables // expensiveVariables)."${routeMaps}"

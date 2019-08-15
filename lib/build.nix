@@ -1,7 +1,7 @@
 { lib, routes, mkDerivation, mkPostCSS, copyFiles, mkFavicons, coreutils }:
 
 { rootDir, name ? null, cssDir ? null, templateDir ? null, staticDir ? null
-, favicon ? null, variables ? null, layout, extraParts ? null }@givenBuildArgs:
+, favicon ? null, variables ? null, expensiveVariables ? null, layout, extraParts ? null }@givenBuildArgs:
 
 let
   buildArgs = {
@@ -10,6 +10,7 @@ let
     templateDir = rootDir + "/templates";
     staticDir = rootDir + "/static";
     variables = { };
+    expensiveVariables = {};
     favicon = null;
     extraParts = [ ];
   } // givenBuildArgs;
