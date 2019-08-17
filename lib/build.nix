@@ -1,7 +1,8 @@
-{ lib, routes, mkDerivation, mkPostCSS, copyFiles, mkFavicons, coreutils }:
+{ lib, mkDerivation, mkPostCSS, copyFiles, mkFavicons, coreutils }:
 
 { rootDir, name ? null, cssDir ? null, templateDir ? null, staticDir ? null
-, favicon ? null, variables ? null, expensiveVariables ? null, layout, extraParts ? null }@givenBuildArgs:
+, favicon ? null, variables ? null, expensiveVariables ? null, layout
+, extraParts ? null, routes ? null  }@givenBuildArgs:
 
 let
   buildArgs = {
@@ -10,16 +11,17 @@ let
     templateDir = rootDir + "/templates";
     staticDir = rootDir + "/static";
     variables = { };
-    expensiveVariables = {};
+    expensiveVariables = { };
     favicon = null;
     extraParts = [ ];
+    routes = {};
   } // givenBuildArgs;
 
   inherit (buildArgs) name favicon staticDir extraParts;
 in mkDerivation {
   inherit name;
 
-  parts = [ (routes buildArgs) ]
+  parts = routes
     ++ (lib.optional (builtins.pathExists staticDir) (copyFiles staticDir "/"))
     ++ (lib.optional (favicon != null) (mkFavicons favicon)) ++ extraParts;
 

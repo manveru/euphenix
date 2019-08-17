@@ -13,7 +13,7 @@ TMPL_IMPORT = /\{\{\s*template\s*"([^\"]+)".*\}\}/.freeze
 
 templates = {}
 
-Dir.glob(File.expand_path('**/*.tmpl', DIRECTORY)) do |path|
+Dir.glob(File.expand_path('**/*.html', DIRECTORY)) do |path|
   content = File.read(path)
 
   template = { 'imports' => [path], 'meta' => {}, 'body' => content }

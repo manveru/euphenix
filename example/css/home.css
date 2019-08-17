@@ -1,0 +1,27 @@
+@import "main";
+
+.hero {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 3em;
+  border-radius: 1em;
+}
+
+.more {
+  display: grid;
+  grid-gap: 1em;
+  justify-items: center;
+
+  @media (--large) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  & > div {
+    width: 100%;
+  }
+
+  & ul {
+    list-style-position: inside;
+    padding: 0;
+  }
+}

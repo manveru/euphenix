@@ -1,0 +1,13 @@
+@import 'main';
+
+pre {
+  white-space: pre-wrap;
+  max-width: 83vw;
+}
+
+p code {
+  background: rgba(0,0,0,0.9);
+  color: rgba(255,255,255,0.9);
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  padding: 0.1em;
+}

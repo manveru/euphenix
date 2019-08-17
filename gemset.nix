@@ -39,6 +39,16 @@
     };
     version = "1.5.3";
   };
+  liquid = {
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0zhg5ha8zy8zw9qr3fl4wgk4r5940n4128xm2pn4shpbzdbsj5by";
+      type = "gem";
+    };
+    version = "4.0.3";
+  };
   parallel = {
     groups = ["default" "development"];
     platforms = [];

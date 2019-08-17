@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ .siteName }} - {{ .title }}</title>
+
+    <link rel="shortcut icon" href="/favicons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicons/favicon32.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicons/favicon144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/favicons/favicon114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/favicons/favicon72.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/favicons/favicon57.png">
+
+    {{ .cssTag }}
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/themes/prism-okaidia.css" integrity="sha256-z3EcdeeMUihcuIaH67JlOEZOS7j//GrK89ZgXrWR/Fs=" crossorigin="anonymous">
+
+    <link href="/blog.atom" type="application/atom+xml" rel="alternate" title="Blog Atom feed" />
+  </head>
+
+  <body>
+    <header>
+      <a href="/" class="logo"><img src="/img/logo.svg" alt="EupheNix logo" /></a>
+      <nav role="navigation">
+        <div id="menuToggle">
+          <input type="checkbox" />
+
+          <span></span>
+          <span></span>
+          <span></span>
+
+          <ul id="menu">
+            <li><a href="/">Home</a></li>
+            <li><a href="/docs.html">Documentation</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main role="main" id="{{ .id | default "" }}">
+      {{ yield }}
+    </main>
+
+    <footer>
+      <div class="engine">Powered by <a href="https://gitlab.com/manveru/euphenix">EupheNix</a></div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.js" integrity="sha256-hFhFKoZ+mZTEMFJc8FQyuDDHVB1x9v+rJRu3DelyOHQ=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/plugins/autoloader/prism-autoloader.min.js" integrity="sha256-ht8ay6ZTPZfuixYB99I5oRpCLsCq7Do2LjEYLwbe+X8=" crossorigin="anonymous"></script>
+
+    {{ if .liveJS }}<script src="/js/live.js"></script>{{ end }}
+  </body>
+</html>

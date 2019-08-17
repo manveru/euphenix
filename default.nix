@@ -5,8 +5,8 @@
 
   inherit pkgs;
   inherit (pkgs)
-    lib coreutils bash glibcLocales infuse gnused euphenixYarnPackages
-    imagemagick stdenv makeWrapper;
+    lib coreutils bash glibcLocales gnused euphenixYarnPackages
+    imagemagick stdenv makeWrapper infuse;
   ruby = pkgs.rubyEnv.wrappedRuby;
 
   pp = value: builtins.trace (builtins.toJSON value) value;

@@ -1,0 +1,7 @@
+:root {
+  --dark-grey: #e5e5e5;
+  --green: rgb(0,200,150);
+  --large-size: 50rem;
+}
+
+@custom-media --large (width > 50rem);
