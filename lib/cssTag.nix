@@ -1,0 +1,1 @@
+{ }: compiler: file: "<<<${compiler file}>>>"

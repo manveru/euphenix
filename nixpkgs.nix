@@ -42,14 +42,14 @@ in import nixpkgsSource {
       };
 
       rubyEnv = super.bundlerEnv {
-        ruby = super.ruby_2_5;
+        ruby = super.ruby_2_6;
         name = "euphenix-gems";
         gemdir = ./.;
         groups = [ "default" ];
       };
 
       rubyDevEnv = super.bundlerEnv {
-        ruby = super.ruby_2_5;
+        ruby = super.ruby_2_6;
         name = "euphenix-gems";
         gemdir = ./.;
         groups = [ "default" "development" ];

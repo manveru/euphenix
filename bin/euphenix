@@ -83,7 +83,7 @@ class Euphenix
       res['Last-Modified'] = Time.at(0)
       res['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
       res['Pragma']        = 'no-cache'
-      res['Expires']       = Time.at(9_999_999_999)
+                    res['Expires']       = Time.at(9_999_999_999)
     end
 
     def do_GET(req, res)

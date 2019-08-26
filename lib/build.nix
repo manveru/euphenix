@@ -1,29 +1,29 @@
-{ lib, mkDerivation, mkPostCSS, copyFiles, mkFavicons, coreutils }:
+{ lib, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes }:
 
-{ rootDir, name ? null, cssDir ? null, templateDir ? null, staticDir ? null
-, favicon ? null, variables ? null, expensiveVariables ? null, layout
-, extraParts ? null, routes ? null  }@givenBuildArgs:
+rootDir:
+{ name ? null, templateDir ? null, staticDir ? null
+, favicon ? null, extraParts ? null, routes ? null }@givenBuildArgs:
 
 let
   buildArgs = {
     name = baseNameOf rootDir;
-    cssDir = rootDir + "/css";
     templateDir = rootDir + "/templates";
     staticDir = rootDir + "/static";
-    variables = { };
-    expensiveVariables = { };
-    favicon = null;
+    favicon = rootDir + "/static/img/favicon.svg";
     extraParts = [ ];
-    routes = {};
+    routes = [ ];
   } // givenBuildArgs;
 
-  inherit (buildArgs) name favicon staticDir extraParts;
+  inherit (buildArgs) name favicon staticDir templateDir extraParts routes;
+  inherit (lib) optional;
+
+  staticParts = (optional (__pathExists staticDir) (copyFiles staticDir "/"));
+  faviconParts = (optional (__pathExists favicon) (mkFavicons favicon));
+  routeParts = mkRoutes { inherit templateDir; } routes;
 in mkDerivation {
   inherit name;
 
-  parts = routes
-    ++ (lib.optional (builtins.pathExists staticDir) (copyFiles staticDir "/"))
-    ++ (lib.optional (favicon != null) (mkFavicons favicon)) ++ extraParts;
+  parts = routeParts ++ staticParts ++ faviconParts ++ extraParts;
 
   buildInputs = [ coreutils ];
 

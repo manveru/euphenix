@@ -9,6 +9,7 @@ let
     "convert -background none ${source} -define icon:auto-resize=32,64 +repage ico:- > $out/favicons/favicon.ico";
 in mkDerivation {
   name = "favicons";
+  preferLocalBuild = true;
   buildInputs = [ coreutils imagemagick ];
 
   buildCommand = ''

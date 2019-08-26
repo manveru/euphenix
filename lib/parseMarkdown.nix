@@ -9,8 +9,9 @@ let
 
 in src:
 fromJSON (readFile (mkDerivation {
-  name = "md2Meta";
+  name = "parseMarkdown";
   buildInputs = [ ruby ];
+  allowSubstitutes = false;
 
   buildCommand = ''
     ruby ${../scripts/front_matter.rb} ${flagsString} "${src}" > $out

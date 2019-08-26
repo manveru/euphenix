@@ -3,7 +3,7 @@
 
 { lib, bash, glibcLocales }:
 let inherit (builtins) toFile;
-in { buildInputs ? [], ... }@givenArgs:
+in { buildInputs ? [ ], ... }@givenArgs:
 derivation ({
   out = placeholder "out";
   system = builtins.currentSystem;

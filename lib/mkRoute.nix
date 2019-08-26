@@ -28,7 +28,7 @@ let
     page.meta.route;
 
   omgData = (metaData // style);
-  omg = scopedImport ( omgData // { template = scopedImport omgData; }) layout;
+  omg = scopedImport (omgData // { template = scopedImport omgData; }) layout;
 in mkDerivation {
   name = "mkRoute-${baseNameOf tmpl}";
   buildInputs = [ coreutils gnused ];
