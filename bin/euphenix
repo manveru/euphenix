@@ -29,8 +29,13 @@ class Euphenix
     parser.add_command(CmdParse::HelpCommand.new)
     parser.add_command(CmdParse::VersionCommand.new)
 
-    parser.add_command(Init.new, default: true)
-    parser.add_command(Server.new)
+    parser.add_command(Init.new)
+
+    deploy = Deploy.new
+    parser.add_command(deploy)
+    deploy.add_command(NetlifyDeploy.new)
+
+    parser.add_command(Server.new, default: true)
 
     parser
   end
@@ -83,7 +88,7 @@ class Euphenix
       res['Last-Modified'] = Time.at(0)
       res['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
       res['Pragma']        = 'no-cache'
-                    res['Expires']       = Time.at(9_999_999_999)
+      res['Expires'] = Time.at(9_999_999_999)
     end
 
     def do_GET(req, res)
@@ -114,6 +119,38 @@ class Euphenix
       server.mount '/', NonCachingFileHandler, Dir.pwd + '/result'
       trap('INT') { server.stop }
       server.start
+    end
+  end
+
+  class Deploy < Command
+    def initialize
+      super 'deploy'
+    end
+  end
+
+  class NetlifyDeploy < Command
+    def initialize
+      super 'netlify', takes_commands: false
+
+      @data = {}
+
+      options.on('-m', '--message', 'A short message to include in the deploy log')
+    end
+
+    def execute
+      require 'netlify'
+      system 'nix-build'
+      site.deploys.create(dir: File.realpath('result'))
+    end
+
+    private
+
+    def client
+      @client ||= Netlify::Client.new(access_token: ENV.fetch('NETLIFY_AUTH_TOKEN'))
+    end
+
+    def site
+      @site ||= client.sites.get(ENV.fetch('NETLIFY_SITE_ID'))
     end
   end
 end
