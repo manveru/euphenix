@@ -133,14 +133,12 @@ class Euphenix
       super 'netlify', takes_commands: false
 
       @data = {}
-
-      options.on('-m', '--message', 'A short message to include in the deploy log')
     end
 
     def execute
       require 'netlify'
-      system 'nix-build'
-      site.deploys.create(dir: File.realpath('result'))
+      result = `nix-build -A site --no-out-link`
+      site.deploys.create(dir: File.realpath(result))
     end
 
     private
