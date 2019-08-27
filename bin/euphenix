@@ -138,7 +138,7 @@ class Euphenix
     def execute
       require 'netlify'
       result = `nix-build -A site --no-out-link`
-      site.deploys.create(dir: File.realpath(result))
+      site.deploys.create(dir: result)
     end
 
     private
