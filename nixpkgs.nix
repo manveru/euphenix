@@ -64,7 +64,6 @@ in import nixpkgsSource {
         version = "1.0";
         packageJSON = ./package.json;
         yarnLock = ./yarn.lock;
-        yarnNix = ./yarn.nix;
       };
     })
   ];

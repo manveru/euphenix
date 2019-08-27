@@ -136,19 +136,8 @@ class Euphenix
     end
 
     def execute
-      require 'netlify'
       result = `nix-build -A site --no-out-link`
-      site.deploys.create(dir: result)
-    end
-
-    private
-
-    def client
-      @client ||= Netlify::Client.new(access_token: ENV.fetch('NETLIFY_AUTH_TOKEN'))
-    end
-
-    def site
-      @site ||= client.sites.get(ENV.fetch('NETLIFY_SITE_ID'))
+      system('@netlify@', 'deploy', '--prod', '--dir', result.strip)
     end
   end
 end
