@@ -41,6 +41,7 @@ home-manager)
 
 Installation on other systems is left as an exercise for the reader.
 
+
 ## Usage
 
 EupheNix is still a very young project, and only supports the use-cases I've
