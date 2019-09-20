@@ -1,18 +1,26 @@
-{ lib, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes }:
-
-rootDir:
-{ name ? null, templateDir ? null, staticDir ? null
-, favicon ? null, extraParts ? null, routes ? null }@givenBuildArgs:
-
+{ lib, yants, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes }:
 let
-  buildArgs = {
-    name = baseNameOf rootDir;
-    templateDir = rootDir + "/templates";
-    staticDir = rootDir + "/static";
-    favicon = rootDir + "/static/img/favicon.svg";
+  buildArgsT = yants.struct "buildArgs" {
+    name = yants.option yants.string;
+    src = yants.path;
+    templateDir = yants.option yants.path;
+    staticDir = yants.option yants.path;
+    favicon = yants.option yants.path;
+    extraParts = yants.option (yants.list yants.drv);
+    routes = yants.attrs yants.any;
+  };
+
+in givenBuildArgs:
+let
+  checkedBuildArgs = buildArgsT givenBuildArgs;
+  buildArgs = buildArgsT ({
+    name = baseNameOf checkedBuildArgs.src;
+    templateDir = checkedBuildArgs.src + "/templates";
+    staticDir = checkedBuildArgs.src + "/static";
+    favicon = checkedBuildArgs.src + "/static/img/favicon.svg";
     extraParts = [ ];
     routes = [ ];
-  } // givenBuildArgs;
+  } // givenBuildArgs);
 
   inherit (buildArgs) name favicon staticDir templateDir extraParts routes;
   inherit (lib) optional;

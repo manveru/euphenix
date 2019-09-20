@@ -1,26 +1,44 @@
 # we use our own derivation because we don't need all the overhead of stdenv
 # and this speeds up builds a lot.
 
-{ lib, bash, glibcLocales }:
-let inherit (builtins) toFile;
-in { buildInputs ? [ ], ... }@givenArgs:
-derivation ({
-  out = placeholder "out";
-  system = builtins.currentSystem;
-  builder = "${bash}/bin/bash";
+{ lib, yants, bash, glibcLocales }:
+yants.defun [
+  (yants.struct "mkDerivationArgs" {
+    name = yants.string;
+    buildInputs = yants.option (yants.list yants.drv);
+    allowSubstitutes = yants.option yants.bool;
+    buildCommand = yants.string;
+    parts = yants.option (yants.list (yants.attrs yants.any));
+    preferLocalBuild = yants.option yants.bool;
+    route = yants.option yants.string;
+    template = yants.option yants.string;
+    PATH = yants.option yants.string;
+    __structuredAttrs = yants.option yants.bool;
+    fileName = yants.option yants.string;
+    imports = yants.option (yants.attrs yants.string);
+    src = yants.option yants.path;
+    to = yants.option yants.string;
+    from = yants.option yants.path;
+  })
+  yants.drv
+] (args:
+  derivation ({
+    out = placeholder "out";
+    system = builtins.currentSystem;
+    builder = "${bash}/bin/bash";
 
-  PATH = lib.makeBinPath buildInputs;
-  LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
-  LC_ALL = "en_US.UTF-8";
+    PATH = lib.makeBinPath args.buildInputs;
+    LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
+    LC_ALL = "en_US.UTF-8";
 
-  args = [
-    "-e"
-    (toFile "builder.sh" ''
-      if [ -e .attrs.sh ]; then
-        source .attrs.sh;
-      fi
+    args = [
+      "-e"
+      (__toFile "builder.sh" ''
+        if [ -e .attrs.sh ]; then
+          source .attrs.sh;
+        fi
 
-      eval "$buildCommand"
-    '')
-  ];
-} // givenArgs)
+        eval "$buildCommand"
+      '')
+    ];
+  } // args))
