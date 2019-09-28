@@ -6,7 +6,7 @@
   inherit pkgs;
   inherit (pkgs)
     lib coreutils bash glibcLocales gnused euphenixYarnPackages imagemagick
-    stdenv makeWrapper infuse image_optim gnugrep findutils;
+    stdenv makeWrapper image_optim gnugrep findutils nix;
   ruby = pkgs.rubyEnv.wrappedRuby;
 
   pp = value: builtins.trace (builtins.toJSON value) value;
@@ -16,6 +16,7 @@
   yants = super.callPackage ./lib/yants.nix { };
   build = super.callPackage ./lib/build.nix { };
 
+  copyFile = super.callPackage ./lib/copyFile.nix { };
   copyFiles = super.callPackage ./lib/copyFiles.nix { };
   copyImagesMogrify = super.callPackage ./lib/copyImagesMogrify.nix { };
 

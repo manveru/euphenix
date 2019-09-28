@@ -4,7 +4,6 @@ pkgs.mkShell {
     cacert
     yarn
     yarn2nix
-    infuse
     rubyDevEnv.wrappedRuby
   ];
 

@@ -6,6 +6,7 @@ require 'fileutils'
 require 'webrick'
 require 'digest/sha2'
 require 'irb'
+require 'listen'
 
 # TODO: consolidate scripts into this executable
 
@@ -114,9 +115,27 @@ class Euphenix
     end
 
     def execute
-      server = ::WEBrick::HTTPServer.new Port: params[:port]
+      p system('@nixBuild@')
+      p $?
+      ENV['LIVEJS'] = 'true'
 
+      Thread.new do
+        listener = Listen.to '.' do |modified, added, removed|
+          unless added.include?(File.join(Dir.pwd, 'result'))
+            pp modified: modified if modified.any?
+            pp added: added if added.any?
+            pp removed: removed if removed.any?
+            system('@nixBuild@')
+            p $?
+          end
+        end
+
+        listener.start
+      end
+
+      server = ::WEBrick::HTTPServer.new Port: params[:port]
       server.mount '/', NonCachingFileHandler, Dir.pwd + '/result'
+
       trap('INT') { server.stop }
       server.start
     end

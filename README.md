@@ -3,8 +3,17 @@
 This is a static site generator that uses [Nix](https://nixos.org/nix),
 [Ruby](https://www.ruby-lang.org/en/), and [infuse](https://github.com/jucardi/infuse).
 
-My goal was to ensure reproducible site builds, and ease of use. The prior is
-provided by Nix, and the latter is of course subjective.
+My goal was to ensure reproducible site builds, and ease of use without getting
+drowned in magic. The prior is provided by Nix, and the latter is of course
+subjective.
+
+## Features
+
+* HTML template engine based on Nix
+* Fast builds through automatic resource dependency management
+* Load Markdown blog posts with YAML front-matter
+* Hot reloading
+* Simple to understand and extend
 
 ## Installation
 

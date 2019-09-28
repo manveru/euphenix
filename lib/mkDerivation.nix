@@ -17,8 +17,8 @@ yants.defun [
     fileName = yants.option yants.string;
     imports = yants.option (yants.attrs yants.string);
     src = yants.option yants.path;
-    to = yants.option yants.string;
-    from = yants.option yants.path;
+    to = yants.option yants.any;
+    from = yants.option yants.any;
   })
   yants.drv
 ] (args:

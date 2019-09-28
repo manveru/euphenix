@@ -1,4 +1,4 @@
-{ lib, mkDerivation, ruby, flags ? { } }:
+{ lib, yants, mkDerivation, ruby, flags ? { } }:
 let
   inherit (lib) concatStringsSep;
   inherit (builtins) attrValues mapAttrs fromJSON readFile;
@@ -7,13 +7,19 @@ let
     (mapAttrs (k: v: if v == true then "--${k}" else "--${k}=${toString v}")
       flags));
 
-in src:
-fromJSON (readFile (mkDerivation {
-  name = "parseMarkdown";
-  buildInputs = [ ruby ];
-  allowSubstitutes = false;
+  resultT = yants.struct "markdownResult" {
+    body = yants.string;
+    meta = yants.attrs yants.string;
+    teaser = yants.string;
+  };
 
-  buildCommand = ''
-    ruby ${../scripts/front_matter.rb} ${flagsString} "${src}" > $out
-  '';
-}))
+in yants.defun [ yants.path resultT ] (src:
+  fromJSON (readFile (mkDerivation {
+    name = "parseMarkdown";
+    buildInputs = [ ruby ];
+    allowSubstitutes = false;
+
+    buildCommand = ''
+      ruby ${../scripts/front_matter.rb} ${flagsString} "${src}" > $out
+    '';
+  })))

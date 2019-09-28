@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${ siteName } - ${ title }</title>
+
+    <link rel="shortcut icon" href="/favicons/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicons/favicon32.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicons/favicon144.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/favicons/favicon114.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/favicons/favicon72.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/favicons/favicon57.png" />
+
+    ${ css "${id}.css" }
+
+    <link rel="stylesheet" href="/css/prism-okaidia.css" />
+
+    <link href="/blog.atom" type="application/atom+xml" rel="alternate" title="Blog Atom feed" />
+</head>
+
+<body>
+    <header>
+        <a href="/" class="logo"><img src="/img/logo.svg" alt="EupheNix logo" /></a>
+        <nav role="navigation">
+            <div id="menuToggle">
+                <input type="checkbox" />
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+                <ul id="menu">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/docs">Documentation</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" id="${ id }">
+        ${ content }
+    </main>
+
+    <footer>
+        <div class="engine">
+            Powered e by <a href="https://gitlab.com/manveru/euphenix">EupheNix</a>
+        </div>
+    </footer>
+
+    <script src="/js/prism.js"></script>
+    <script src="/js/prism-autoloader.min.js"></script>
+
+    ${ liveJS }
+</body>
+
+</html>

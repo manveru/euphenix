@@ -1,4 +1,4 @@
-{ lib, mkDerivation, coreutils, ruby, gnused, cssCompiler, infuse }:
+{ lib, mkDerivation, coreutils, ruby, gnused, cssCompiler }:
 let inherit (builtins) toFile toJSON readFile;
 in { variables, expensiveVariables, cssDir, layout, templateDir, ... }:
 tmpl: page:
