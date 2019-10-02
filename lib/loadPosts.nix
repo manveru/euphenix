@@ -5,13 +5,13 @@ let
 
   mdIn = yants.struct "markdownIn" {
     body = yants.string;
-    meta = yants.attrs yants.string;
+    meta = yants.attrs yants.any;
     teaser = yants.string;
   };
 
   mdOut = yants.struct "markdownOut" {
     body = yants.string;
-    meta = yants.attrs yants.string;
+    meta = yants.attrs yants.any;
     teaser = yants.string;
     url = yants.string;
   };

@@ -9,7 +9,7 @@ let
 
   resultT = yants.struct "markdownResult" {
     body = yants.string;
-    meta = yants.attrs yants.string;
+    meta = yants.attrs yants.any;
     teaser = yants.string;
   };
 
