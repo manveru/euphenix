@@ -156,7 +156,7 @@ class Euphenix
     end
 
     def execute
-      result = `@nixBuild@ -A site --no-out-link`
+      result = `@nixBuild@ --no-out-link`
       system('@netlify@', 'deploy', '--prod', '--dir', result.strip)
     end
   end
