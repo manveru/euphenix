@@ -2,35 +2,36 @@
 
 let
   inherit (builtins) attrValues mapAttrs readDir;
+  inherit (yants) struct string attrs any defun path list;
 
-  mdIn = yants.struct "markdownIn" {
-    body = yants.string;
-    meta = yants.attrs yants.any;
-    teaser = yants.string;
+  mdIn = struct "markdownIn" {
+    body = string;
+    meta = attrs any;
+    teaser = string;
   };
 
-  mdOut = yants.struct "markdownOut" {
-    body = yants.string;
-    meta = yants.attrs yants.any;
-    teaser = yants.string;
-    url = yants.string;
+  mdOut = struct "markdownOut" {
+    body = string;
+    meta = attrs any;
+    teaser = string;
+    url = string;
   };
 
-  parse = yants.defun [ yants.path yants.string mdIn ]
+  parse = defun [ path string mdIn ]
     (location: file: parseMarkdown ( location + "/${file}" ));
 
-  withUrl = yants.defun [ yants.string mdIn mdOut ] (baseUrl: markdown:
+  withUrl = defun [ string mdIn mdOut ] (baseUrl: markdown:
     markdown // {
       url = "${baseUrl}${markdown.meta.slug}.html";
     });
 
-in yants.defun [
-  yants.string
-  yants.path
-  (yants.list mdOut)
+in defun [
+  string
+  path
+  (list mdOut)
 ] (baseUrl: location:
   let
     files = readDir location;
-    loadPost = yants.defun [ yants.string yants.string mdOut ]
+    loadPost = defun [ string string mdOut ]
       (file: type: withUrl baseUrl (parse location file));
   in attrValues (mapAttrs loadPost files))

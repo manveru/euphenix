@@ -1,13 +1,15 @@
 { lib, yants, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes }:
 let
-  buildArgsT = yants.struct "buildArgs" {
-    name = yants.option yants.string;
-    src = yants.path;
-    templateDir = yants.option yants.path;
-    staticDir = yants.option yants.path;
-    favicon = yants.option yants.path;
-    extraParts = yants.option (yants.list yants.drv);
-    routes = yants.attrs yants.any;
+  inherit (yants) struct option path string list drv attrs any;
+
+  buildArgsT = struct "buildArgs" {
+    name = option string;
+    src = path;
+    templateDir = option path;
+    staticDir = option path;
+    favicon = option path;
+    extraParts = option (list drv);
+    routes = attrs any;
   };
 
 in givenBuildArgs:

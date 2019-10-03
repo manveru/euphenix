@@ -1,18 +1,15 @@
-with import ./nixpkgs.nix;
+with import ./nix {};
 pkgs.mkShell {
   buildInputs = [
     cacert
     yarn
     yarn2nix
-    rubyDevEnv.wrappedRuby
+    packages.rubyEnv.wrappedRuby
+    packages.netlify
+    packages.postcss
   ];
-
-  LOCALE_ARCHIVE = "${buildPackages.glibcLocales}/lib/locale/locale-archive";
-  LC_ALL = "en_US.UTF-8";
 
   shellHook = ''
     unset preHook # fix for lorri
-
-    export PATH=$PATH:${euphenixYarnPackages + "/node_modules/.bin"}
   '';
 }

@@ -115,9 +115,10 @@ class Euphenix
     end
 
     def execute
+      ENV['LIVEJS'] = 'true'
+
       p system('@nixBuild@')
       p $?
-      ENV['LIVEJS'] = 'true'
 
       Thread.new do
         listener = Listen.to '.' do |modified, added, removed|
@@ -155,7 +156,7 @@ class Euphenix
     end
 
     def execute
-      result = `nix-build -A site --no-out-link`
+      result = `@nixBuild@ -A site --no-out-link`
       system('@netlify@', 'deploy', '--prod', '--dir', result.strip)
     end
   end

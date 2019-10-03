@@ -1,11 +1,11 @@
-{ cssDepsFor, mkDerivation, coreutils, euphenixYarnPackages }:
+{ cssDepsFor, mkDerivation, coreutils, postcss, lib }:
 cssDir: fileName:
 let imports = cssDepsFor cssDir fileName;
 in mkDerivation {
   name = "mkPostCSS";
   __structuredAttrs = true;
   inherit imports fileName;
-  PATH = "${coreutils}/bin:${euphenixYarnPackages}/node_modules/.bin";
+  buildInputs = [ coreutils postcss ];
 
   buildCommand = ''
     mkdir -p $out

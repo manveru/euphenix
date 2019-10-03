@@ -1,8 +1,8 @@
-{ mkDerivation, coreutils, image_optim, gnugrep, imagemagick, findutils }:
+{ mkDerivation, coreutils, gnugrep, imagemagick, findutils }:
 from: to: size:
 mkDerivation {
   name = "copyImagesMogrify";
-  buildInputs = [ coreutils image_optim gnugrep imagemagick findutils ];
+  buildInputs = [ coreutils gnugrep imagemagick findutils ];
   inherit from to;
 
   buildCommand = ''
