@@ -2,11 +2,11 @@
 
 pkgs.lib.makeExtensible (self: {
   callPackage = pkgs.lib.callPackageWith self;
-  inherit (pkgs) lib yants coreutils gnugrep imagemagick findutils bash glibcLocales gnused;
-  inherit (pkgs.packages) nodeEnv euphenix;
+  inherit (pkgs)
+    lib yants coreutils gnugrep imagemagick findutils bash glibcLocales gnused
+    sortByRecent compact;
+  inherit (pkgs.packages) nodeEnv euphenix postcss netlify;
   ruby = pkgs.packages.rubyEnv.wrappedRuby;
-  postcss = pkgs.packages.postcss;
-  netlify = pkgs.packages.netlify;
 
   build = self.callPackage ./lib/build.nix { };
   copyFile = self.callPackage ./lib/copyFile.nix { };
