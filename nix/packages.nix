@@ -1,5 +1,4 @@
-{ bundlerEnv, ruby, mkYarnPackage, yarn2nix, lib, stdenv, makeWrapper, nix
-}:
+{ bundlerEnv, ruby, mkYarnPackage, yarn2nix, lib, stdenv, makeWrapper, nix }:
 let
   nodeDrv = env: bin: stdenv.mkDerivation {
     name = bin;
@@ -45,7 +44,7 @@ in rec {
     nativeBuildInputs = [ makeWrapper rubyEnv.wrappedRuby ];
     phases = [ "installPhase" ];
 
-    netlify = "${nodeEnv}/bin/netlify";
+    netlify = "${netlify}/bin/netlify";
     nixBuild = "${nix}/bin/nix-build";
 
     installPhase = ''
