@@ -22,6 +22,4 @@ pkgs.lib.makeExtensible (self: {
   mkRoute = self.callPackage ./lib/mkRoute.nix { };
   mkRoutes = self.callPackage ./lib/mkRoutes.nix { };
   parseMarkdown = self.callPackage ./lib/parseMarkdown.nix { };
-  parseTemplates = self.callPackage ./lib/parseTemplates.nix { };
-  routes = self.callPackage ./lib/routes.nix { };
 })
