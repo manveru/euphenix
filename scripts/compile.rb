@@ -5,7 +5,7 @@ require 'fileutils'
 
 out = ENV.fetch('out')
 route = ENV.fetch('route')
-template = ENV.fetch('template').dup
+template = File.read(ENV.fetch('template')).dup
 
 FileUtils.mkdir_p(ENV.fetch('out'))
 FileUtils.mkdir_p(File.join(out, '/css'))

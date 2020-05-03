@@ -4,7 +4,7 @@ pkgs.lib.makeExtensible (self: {
   callPackage = pkgs.lib.callPackageWith self;
   inherit (pkgs)
     lib yants coreutils gnugrep imagemagick findutils bash glibcLocales gnused
-    sortByRecent compact;
+    sortByRecent compact writeTextFile;
   inherit (pkgs.packages) nodeEnv euphenix postcss netlify;
   ruby = pkgs.packages.rubyEnv.wrappedRuby;
 

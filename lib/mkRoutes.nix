@@ -1,4 +1,4 @@
-{ lib, mkDerivation, coreutils, ruby }:
+{ lib, mkDerivation, coreutils, ruby, writeTextFile }:
 let
   inherit (builtins)
     baseNameOf attrValues mapAttrs replaceStrings toFile readFile
@@ -32,7 +32,8 @@ let
       preferLocalBuild = true;
       name = "mkRoute";
       buildInputs = [ coreutils ruby ];
-      inherit route template;
+      inherit route;
+      template = (writeTextFile { name = "template"; text = template; }).outPath;
       buildCommand = ''
         ruby ${../scripts/compile.rb}
       '';
