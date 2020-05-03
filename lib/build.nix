@@ -1,6 +1,7 @@
-{ lib, yants, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes }:
+{ lib, yants, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes, writeTextFile }:
 let
   inherit (yants) struct option path string list drv attrs any;
+  inherit (builtins) concatStringsSep concatLists;
 
   buildArgsT = struct "buildArgs" {
     name = option string;
@@ -33,14 +34,17 @@ let
 in mkDerivation {
   inherit name;
 
-  parts = routeParts ++ staticParts ++ faviconParts ++ extraParts;
+  parts = (writeTextFile {
+    name = "combine-parts";
+    text = concatStringsSep "\n" (concatLists [ routeParts staticParts faviconParts extraParts ]);
+  }).outPath;
 
   buildInputs = [ coreutils ];
 
   buildCommand = ''
     mkdir -p $out
 
-    for part in $parts; do
+    for part in $(< $parts); do
       chmod u+rw -R $out
       cp -r $part/* $out
     done

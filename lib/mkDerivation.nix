@@ -8,7 +8,7 @@ yants.defun [
     buildInputs = yants.option (yants.list yants.drv);
     allowSubstitutes = yants.option yants.bool;
     buildCommand = yants.string;
-    parts = yants.option (yants.list (yants.attrs yants.any));
+    parts = yants.option yants.string;
     preferLocalBuild = yants.option yants.bool;
     route = yants.option yants.string;
     template = yants.option yants.string;
