@@ -134,11 +134,18 @@ class Euphenix
         listener.start
       end
 
-      server = ::WEBrick::HTTPServer.new Port: params[:port]
-      server.mount '/', NonCachingFileHandler, Dir.pwd + '/result'
+      File.open('euphenix_server.log', 'w+') do |log_file|
+        log = WEBrick::Log.new(log_file)
+        server = ::WEBrick::HTTPServer.new(
+          Port: params[:port],
+          Logger: log,
+          AccessLog: [[log_file, WEBrick::AccessLog::COMBINED_LOG_FORMAT]]
+        )
+        server.mount('/', NonCachingFileHandler, Dir.pwd + '/result')
 
-      trap('INT') { server.stop }
-      server.start
+        trap('INT') { server.stop }
+        server.start
+      end
     end
   end
 
