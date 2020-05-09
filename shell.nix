@@ -1,6 +1,6 @@
-with import ./nix {};
+{ pkgs, packages }:
 pkgs.mkShell {
-  buildInputs = [
+  buildInputs = with pkgs; [
     cacert
     yarn
     yarn2nix
@@ -8,8 +8,4 @@ pkgs.mkShell {
     packages.netlify
     packages.postcss
   ];
-
-  shellHook = ''
-    unset preHook # fix for lorri
-  '';
 }
