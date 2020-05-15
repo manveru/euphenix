@@ -1,8 +1,8 @@
-{ lib, mkDerivation, coreutils, ruby, writeTextFile }:
+{ lib, mkDerivation, coreutils, ruby, writeTextFile, sanitizeDerivationName }:
 let
   inherit (builtins)
     baseNameOf attrValues mapAttrs toFile readFile addErrorContext;
-  inherit (lib) attrByPath foldr sanitizeDerivationName;
+  inherit (lib) attrByPath foldr;
 in { templateDir }:
 let
   mkRoute = route: value:
