@@ -4,7 +4,7 @@ with {
     inherit (import sources.niv { }) niv;
     packages = pkgs.callPackages ./packages.nix { };
     inherit (import sources.yarn2nix { inherit pkgs; }) yarn2nix mkYarnPackage;
-    yants = import sources.yants { inherit (pkgs) lib; };
+    yants = pkgs.callPacakge ./yants.nix { };
     lib = pkgs.lib;
     pp = value: builtins.trace (builtins.toJSON value) value;
     compact = pkgs.lib.subtractLists [ null ];

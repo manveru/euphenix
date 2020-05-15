@@ -23,16 +23,6 @@
         "url": "https://github.com/NixOS/nixpkgs-channels/archive/91fce0fb2f4b79c6e4a3f4ea129c4e665197cd35.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "yants": {
-        "branch": "master",
-        "description": "Yet Another Nix Type System",
-        "owner": "tazjin",
-        "repo": "yants",
-        "rev": "5f6b51cce4feb91ac5748099811c1a70c30b2937",
-        "sha256": "091rwh1q2wafvq76xjsm6bd9fq46snj61dbv5049af4l52fl9ahb",
-        "url": "https://github.com/tazjin/yants/archive/5f6b51cce4feb91ac5748099811c1a70c30b2937.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "yarn2nix": {
         "branch": "master",
         "description": "Generate nix expressions from a yarn.lock file",
