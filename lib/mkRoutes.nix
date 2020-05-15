@@ -30,7 +30,7 @@ let
     in addErrorContext "Building ${route}" (mkDerivation {
       allowSubstitutes = false;
       preferLocalBuild = true;
-      name = "mkRoute-${replaceStrings ["/"] ["_"] route}";
+      name = "mkRoute-${replaceStrings ["/" " "] ["_"] route}";
       buildInputs = [ coreutils ruby ];
       inherit route;
       template = (writeTextFile { name = "template"; text = template; }).outPath;
