@@ -1,9 +1,8 @@
 { lib, mkDerivation, coreutils, ruby, writeTextFile }:
 let
   inherit (builtins)
-    baseNameOf attrValues mapAttrs replaceStrings toFile readFile
-    addErrorContext;
-  inherit (lib) attrByPath foldr;
+    baseNameOf attrValues mapAttrs toFile readFile addErrorContext;
+  inherit (lib) attrByPath foldr sanitizeDerivationName;
 in { templateDir }:
 let
   mkRoute = route: value:
@@ -14,8 +13,8 @@ let
 
       include = file: vars:
         let actual = templateDir + "/" + file;
-        in addErrorContext "include ${actual}"
-        (scopedImport vars (toFile (baseNameOf actual) "''${readFile actual}''"));
+        in addErrorContext "include ${actual}" (scopedImport vars
+          (toFile (baseNameOf actual) "''${readFile actual}''"));
 
       variables = {
         inherit route include;
@@ -30,10 +29,13 @@ let
     in addErrorContext "Building ${route}" (mkDerivation {
       allowSubstitutes = false;
       preferLocalBuild = true;
-      name = "mkRoute-${replaceStrings ["/" " "] ["_" "_"] route}";
+      name = "mkRoute-${sanitizeDerivationName route}";
       buildInputs = [ coreutils ruby ];
       inherit route;
-      template = (writeTextFile { name = "template"; text = template; }).outPath;
+      template = (writeTextFile {
+        name = "template";
+        text = template;
+      }).outPath;
       buildCommand = ''
         ruby ${../scripts/compile.rb}
       '';
