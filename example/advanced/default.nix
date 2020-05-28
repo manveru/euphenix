@@ -1,6 +1,6 @@
-{ pkgs ? import ../nix { } }:
+{ pkgs ? import ../../nix { } }:
 let
-  euphenix = (import ./.. { }).extend (self: super: {
+  euphenix = (import ../.. { }).extend (self: super: {
     parseMarkdown =
       super.parseMarkdown.override { flags = { prismjs = true; }; };
   });

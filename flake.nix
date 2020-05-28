@@ -1,11 +1,9 @@
 {
   description = "A flake for building Euphenix";
 
-  edition = 201909;
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs-channels/nixpkgs-unstable";
-    utils.uri = "github:numtide/flake-utils";
+    utils.url = "github:numtide/flake-utils";
   };
 
   outputs = { self, utils, nixpkgs }:
