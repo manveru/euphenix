@@ -1,4 +1,4 @@
-{ bundlerEnv, ruby, mkYarnPackage, lib, stdenv, makeWrapper, nix }:
+{ bundlerEnv, ruby, mkYarnPackage, lib, stdenv, makeWrapper, nixUnstable }:
 let
   nodeDrv = env: bin:
     stdenv.mkDerivation {
@@ -45,7 +45,7 @@ in rec {
     phases = [ "installPhase" ];
 
     netlify = "${netlify}/bin/netlify";
-    nixBuild = "${nix}/bin/nix-build";
+    nix = "${nixUnstable}/bin/nix";
 
     installPhase = ''
       mkdir -p $out/bin

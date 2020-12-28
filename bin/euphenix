@@ -10,6 +10,7 @@ require 'listen'
 
 # TODO: consolidate scripts into this executable
 
+# Euphenix contains the CLI for helper utils
 class Euphenix
   VERSION = '0.0.1'
 
@@ -37,6 +38,7 @@ class Euphenix
     deploy.add_command(NetlifyDeploy.new)
 
     parser.add_command(Server.new, default: true)
+    parser.add_command(Build.new)
 
     parser
   end
@@ -83,9 +85,7 @@ class Euphenix
 
   class NonCachingFileHandler < WEBrick::HTTPServlet::FileHandler
     def prevent_caching(res)
-      res['ETag'] = if res.body.respond_to?(:path)
-                      Digest::SHA256.file(res.body.path)
-                    end
+      res['ETag'] = (Digest::SHA256.file(res.body.path) if res.body.respond_to?(:path))
       res['Last-Modified'] = Time.at(0)
       res['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
       res['Pragma']        = 'no-cache'
@@ -117,8 +117,8 @@ class Euphenix
     def execute
       ENV['LIVEJS'] = 'true'
 
-      p system('@nixBuild@')
-      p $?
+      p system('@nix@ build .#site')
+      p $CHILD_STATUS
 
       Thread.new do
         listener = Listen.to '.' do |modified, added, removed|
@@ -126,8 +126,8 @@ class Euphenix
             pp modified: modified if modified.any?
             pp added: added if added.any?
             pp removed: removed if removed.any?
-            system('@nixBuild@')
-            p $?
+            system('@nix@ build .#site')
+            p $CHILD_STATUS
           end
         end
 
@@ -149,12 +149,29 @@ class Euphenix
     end
   end
 
+  # Build the website
+  class Build < Command
+    def initialize
+      super 'build', takes_commands: false
+      @data = { out: 'result' }
+      options.on('-o', '--out', 'out') do |value|
+        data[:out] = value
+      end
+    end
+
+    def execute
+      system('@nix@ build .#site')
+    end
+  end
+
+  # Deploy site common class
   class Deploy < Command
     def initialize
       super 'deploy'
     end
   end
 
+  # Deploy to netlify
   class NetlifyDeploy < Command
     def initialize
       super 'netlify', takes_commands: false
@@ -163,8 +180,8 @@ class Euphenix
     end
 
     def execute
-      result = `@nixBuild@ --no-out-link`
-      system('@netlify@', 'deploy', '--prod', '--dir', result.strip)
+      system('@nix@ build -o site')
+      system('@netlify@', 'deploy', '--prod', '--dir', 'site')
     end
   end
 end
