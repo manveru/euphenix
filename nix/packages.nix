@@ -1,4 +1,4 @@
-{ bundlerEnv, ruby, mkYarnPackage, yarn2nix, lib, stdenv, makeWrapper, nix }:
+{ bundlerEnv, ruby, mkYarnPackage, lib, stdenv, makeWrapper, nix }:
 let
   nodeDrv = env: bin:
     stdenv.mkDerivation {
@@ -11,7 +11,7 @@ let
     };
 in rec {
   rubyEnv = bundlerEnv {
-    ruby = ruby;
+    inherit ruby;
     name = "euphenix-rubyEnv";
     gemdir = ../.;
     groups = [ "default" ];
