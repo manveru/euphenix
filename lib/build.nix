@@ -1,5 +1,5 @@
 { lib, yants, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes
-, writeTextFile }:
+, writeTextFile, runCommandNoCC }:
 let
   inherit (yants) struct option path string list drv attrs any;
   inherit (builtins) concatStringsSep concatLists;
@@ -32,23 +32,29 @@ let
   staticParts = (optional (__pathExists staticDir) (copyFiles staticDir "/"));
   faviconParts = (optional (__pathExists favicon) (mkFavicons favicon));
   routeParts = mkRoutes { inherit templateDir; } routes;
-in mkDerivation {
-  inherit name;
 
-  parts = (writeTextFile {
-    name = "combine-parts";
-    text = concatStringsSep "\n"
-      (concatLists [ routeParts staticParts faviconParts extraParts ]);
-  }).outPath;
+  raw = mkDerivation {
+    inherit name;
 
-  buildInputs = [ coreutils ];
+    parts = (writeTextFile {
+      name = "combine-parts";
+      text = concatStringsSep "\n"
+        (concatLists [ routeParts staticParts faviconParts extraParts ]);
+    }).outPath;
 
-  buildCommand = ''
-    mkdir -p $out
+    buildInputs = [ coreutils ];
 
-    for part in $(< $parts); do
-      chmod u+rw -R $out
-      cp -r $part/* $out
-    done
+    buildCommand = ''
+      mkdir -p $out
+
+      for part in $(< $parts); do
+        chmod u+rw -R $out
+        cp -r $part/* $out
+      done
+    '';
+  };
+
+  tarball = runCommandNoCC "${name}.tar.xz" { } ''
+    tar cvhJf $out -C ${raw} .
   '';
-}
+in { inherit raw tarball; }

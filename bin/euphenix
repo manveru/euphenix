@@ -7,6 +7,7 @@ require 'webrick'
 require 'digest/sha2'
 require 'irb'
 require 'listen'
+require 'cgi'
 
 # TODO: consolidate scripts into this executable
 
@@ -39,6 +40,7 @@ class Euphenix
 
     parser.add_command(Server.new, default: true)
     parser.add_command(Build.new)
+    parser.add_command(BuildServer.new)
 
     parser
   end
@@ -153,14 +155,51 @@ class Euphenix
   class Build < Command
     def initialize
       super 'build', takes_commands: false
-      @data = { out: 'result' }
-      options.on('-o', '--out', 'out') do |value|
-        data[:out] = value
-      end
+      @data = {}
     end
 
     def execute
       system('@nix@ build .#site')
+    end
+  end
+
+  class BuildServerHandler < WEBrick::HTTPServlet::AbstractServlet
+    def do_GET(request, response)
+      # status, content_type, body = do_stuff_with request
+      pp request
+      query = CGI.parse(request.query_string)
+      flake = query.fetch('flake')[0]
+
+      system("@nix@ build #{flake}#site.tarball -o site.tar.xz")
+
+      response.status = 200
+      response['Content-Type'] = 'application/x-gtar'
+      response.body = File.open('site.tar.xz')
+    end
+  end
+
+  class BuildServer < Command
+    def initialize
+      super 'build-server', takes_commands: false
+
+      @data = { port: 8000 }
+
+      options.on('-p', '--port', 'port') do |value|
+        data[:port] = value
+      end
+    end
+
+    def execute
+      log = WEBrick::Log.new(STDOUT)
+      server = ::WEBrick::HTTPServer.new(
+        Port: params[:port],
+        Logger: log,
+        AccessLog: [[STDOUT, WEBrick::AccessLog::COMBINED_LOG_FORMAT]]
+      )
+      server.mount('/build', BuildServerHandler)
+
+      trap('INT') { server.stop }
+      server.start
     end
   end
 
