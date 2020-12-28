@@ -1,4 +1,4 @@
 {
-  euphenix = (import ./. {}).euphenix;
+  euphenix = (import ./. { }).euphenix;
   example = import ./example;
 }

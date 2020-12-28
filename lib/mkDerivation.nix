@@ -1,7 +1,7 @@
 # we use our own derivation because we don't need all the overhead of stdenv
 # and this speeds up builds a lot.
 
-{ lib, yants, bash, glibcLocales }:
+{ lib, yants, bash, glibcLocales, system ? builtins.currentSystem }:
 yants.defun [
   (yants.struct "mkDerivationArgs" {
     name = yants.string;
@@ -24,7 +24,7 @@ yants.defun [
 ] (args:
   derivation ({
     out = placeholder "out";
-    system = builtins.currentSystem;
+    inherit system;
     builder = "${bash}/bin/bash";
 
     PATH = lib.makeBinPath args.buildInputs;

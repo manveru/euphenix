@@ -7,10 +7,12 @@
   };
 
   outputs = { self, flake-utils, nixpkgs }:
-    flake-utils.lib.simpleFlake {
+    (flake-utils.lib.simpleFlake {
       inherit self nixpkgs;
       name = "euphenix";
       overlay = ./overlay.nix;
       shell = ./shell.nix;
+    }) // {
+      overlay = import ./overlay.nix;
     };
 }

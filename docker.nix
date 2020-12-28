@@ -5,7 +5,5 @@ pkgs.dockerTools.buildLayeredImage {
   created = "now";
   maxLayers = 110;
 
-  contents = [
-    (import ./. {}).euphenix
-  ];
+  contents = [ (import ./. { }).euphenix ];
 }

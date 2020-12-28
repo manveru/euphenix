@@ -1,4 +1,5 @@
-{ lib, yants, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes, writeTextFile }:
+{ lib, yants, mkDerivation, copyFiles, mkFavicons, coreutils, mkRoutes
+, writeTextFile }:
 let
   inherit (yants) struct option path string list drv attrs any;
   inherit (builtins) concatStringsSep concatLists;
@@ -36,7 +37,8 @@ in mkDerivation {
 
   parts = (writeTextFile {
     name = "combine-parts";
-    text = concatStringsSep "\n" (concatLists [ routeParts staticParts faviconParts extraParts ]);
+    text = concatStringsSep "\n"
+      (concatLists [ routeParts staticParts faviconParts extraParts ]);
   }).outPath;
 
   buildInputs = [ coreutils ];

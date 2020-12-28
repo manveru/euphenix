@@ -1,13 +1,14 @@
 { bundlerEnv, ruby, mkYarnPackage, yarn2nix, lib, stdenv, makeWrapper, nix }:
 let
-  nodeDrv = env: bin: stdenv.mkDerivation {
-    name = bin;
-    src = env;
-    installPhase = ''
-      mkdir -p $out/bin
-      ln -s $src/libexec/euphenix/node_modules/.bin/${bin} $out/bin/${bin}
-   '';
-  };
+  nodeDrv = env: bin:
+    stdenv.mkDerivation {
+      name = bin;
+      src = env;
+      installPhase = ''
+        mkdir -p $out/bin
+        ln -s $src/libexec/euphenix/node_modules/.bin/${bin} $out/bin/${bin}
+      '';
+    };
 in rec {
   rubyEnv = bundlerEnv {
     ruby = ruby;
@@ -28,8 +29,7 @@ in rec {
       filter = lib.cleanSourceFilter;
       src = lib.cleanSourceWith {
         filter = name: type:
-          !(lib.hasSuffix ".nix" name
-            || type == "directory");
+          !(lib.hasSuffix ".nix" name || type == "directory");
         src = ../.;
       };
     };

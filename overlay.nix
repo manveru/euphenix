@@ -9,7 +9,7 @@ final: prev: {
     callPackage = prev.lib.callPackageWith self;
     inherit (final)
       lib yants coreutils gnugrep imagemagick findutils bash glibcLocales gnused
-      sortByRecent compact writeTextFile;
+      sortByRecent compact writeTextFile system;
     inherit (final.packages) nodeEnv euphenix postcss netlify;
     ruby = final.packages.rubyEnv.wrappedRuby;
 

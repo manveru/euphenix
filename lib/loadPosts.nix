@@ -18,18 +18,14 @@ let
   };
 
   parse = defun [ path string mdIn ]
-    (location: file: parseMarkdown ( location + "/${file}" ));
+    (location: file: parseMarkdown (location + "/${file}"));
 
   withUrl = defun [ string mdIn mdOut ] (baseUrl: markdown:
     markdown // {
       url = "${baseUrl}${markdown.meta.slug}.html";
     });
 
-in defun [
-  string
-  path
-  (list mdOut)
-] (baseUrl: location:
+in defun [ string path (list mdOut) ] (baseUrl: location:
   let
     files = readDir location;
     loadPost = defun [ string string mdOut ]
