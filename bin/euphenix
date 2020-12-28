@@ -119,7 +119,7 @@ class Euphenix
     def execute
       ENV['LIVEJS'] = 'true'
 
-      p system('@nix@ build .#site')
+      p system('@nix@ -L build .#site')
       p $CHILD_STATUS
 
       Thread.new do
@@ -128,7 +128,7 @@ class Euphenix
             pp modified: modified if modified.any?
             pp added: added if added.any?
             pp removed: removed if removed.any?
-            system('@nix@ build .#site')
+            system('@nix@ -L build .#site')
             p $CHILD_STATUS
           end
         end
@@ -165,12 +165,10 @@ class Euphenix
 
   class BuildServerHandler < WEBrick::HTTPServlet::AbstractServlet
     def do_GET(request, response)
-      # status, content_type, body = do_stuff_with request
-      pp request
       query = CGI.parse(request.query_string)
       flake = query.fetch('flake')[0]
 
-      system("@nix@ build #{flake}#site.tarball -o site.tar.xz")
+      system("@nix@ -L build #{flake}#site.tarball -o site.tar.xz")
 
       response.status = 200
       response['Content-Type'] = 'application/x-gtar'
@@ -219,7 +217,7 @@ class Euphenix
     end
 
     def execute
-      system('@nix@ build -o site')
+      system('@nix@ -L build -o site')
       system('@netlify@', 'deploy', '--prod', '--dir', 'site')
     end
   end
