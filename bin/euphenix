@@ -119,7 +119,7 @@ class Euphenix
     def execute
       ENV['LIVEJS'] = 'true'
 
-      p system('@nix@ -L build .#site')
+      p system('@nix@ -L build .#site.raw')
       p $CHILD_STATUS
 
       Thread.new do
@@ -128,7 +128,7 @@ class Euphenix
             pp modified: modified if modified.any?
             pp added: added if added.any?
             pp removed: removed if removed.any?
-            system('@nix@ -L build .#site')
+            system('@nix@ -L build .#site.raw')
             p $CHILD_STATUS
           end
         end
@@ -159,16 +159,33 @@ class Euphenix
     end
 
     def execute
-      system('@nix@ build .#site')
+      system('@nix@ build .#site.raw')
     end
   end
 
   class BuildServerHandler < WEBrick::HTTPServlet::AbstractServlet
     def do_GET(request, response)
       query = CGI.parse(request.query_string)
-      flake = query.fetch('flake')[0]
+      flake = query.fetch('flake').first
 
-      system("@nix@ -L build #{flake}#site.tarball -o site.tar.xz")
+      case flake
+      when %r{^gitlab:(?<owner>[^/]+)/(?<repo>[^/?]+)\?(?<query>.*)}
+        owner, repo = $LAST_MATCH_INFO.values_at(:owner, :repo)
+        flake_query = CGI.parse($LAST_MATCH_INFO[:query])
+        rev = flake_query.fetch('rev').first
+
+        dest = "gitlab/#{owner}/#{repo}"
+        if File.directory?(dest)
+          system('@git@', '-C', dest, 'remote', 'update')
+        else
+          FileUtils.mkdir_p File.dirname(dest)
+          system('@git@', 'clone', "https://gitlab.com/#{owner}/#{repo}.git/", dest)
+        end
+        system('@git@', '-C', dest, 'checkout', rev)
+        system('@nix@', '-L', 'build', "#{dest}#site.tarball", '-o', 'site.tar.xz')
+      else
+        raise 'unknown source'
+      end
 
       response.status = 200
       response['Content-Type'] = 'application/x-gtar'

@@ -9,12 +9,12 @@ let
     let
       fakeImport = vars: file:
         addErrorContext "Importing ${file}" (scopedImport vars file);
-          # (toFile (baseNameOf file) "''${fileContents file}''"));
+      # (toFile (baseNameOf file) "''${fileContents file}''"));
 
       include = file: vars:
         let actual = templateDir + "/" + file;
         in addErrorContext "include ${actual}" (scopedImport vars actual);
-          # (toFile (baseNameOf actual) "''${readFile actual}''"));
+      # (toFile (baseNameOf actual) "''${readFile actual}''"));
 
       variables = {
         inherit route include;

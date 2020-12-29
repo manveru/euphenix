@@ -20,6 +20,6 @@ in yants.defun [ yants.path resultT ] (src:
     allowSubstitutes = false;
 
     buildCommand = ''
-      ruby ${../scripts/front_matter.rb} ${flagsString} "${src}" > $out
+      ruby ${../scripts/front_matter.rb} ${flagsString} "${src}" | tee $out
     '';
   })))

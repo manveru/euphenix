@@ -1,4 +1,5 @@
-{ bundlerEnv, ruby, mkYarnPackage, lib, stdenv, makeWrapper, nixUnstable }:
+{ bundlerEnv, ruby, mkYarnPackage, lib, stdenv, makeWrapper, nixUnstable
+, gitMinimal }:
 let
   nodeDrv = env: bin:
     stdenv.mkDerivation {
@@ -46,6 +47,7 @@ in rec {
 
     netlify = "${netlify}/bin/netlify";
     nix = "${nixUnstable}/bin/nix";
+    git = "${gitMinimal}/bin/git";
 
     installPhase = ''
       mkdir -p $out/bin
