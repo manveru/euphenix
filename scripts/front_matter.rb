@@ -7,6 +7,7 @@ require 'strscan'
 require 'erb'
 require 'optparse'
 require 'date'
+require 'time'
 require 'redcarpet'
 
 class RenderPrismCompatible < Redcarpet::Render::HTML
@@ -54,7 +55,7 @@ ARGV.each do |file|
 
   if front
     yaml = "---\n" + front[0..-(front_match.size + 1)]
-    meta = YAML.safe_load(yaml, [Date]) if front
+    meta = YAML.safe_load(yaml, [Date, Time]) if front
     if meta['title']
       meta['slug'] ||= meta['title'].strip.gsub(
         %r([;/?:@=&"<>#%{}|\\^~\[\]]+), '-'
