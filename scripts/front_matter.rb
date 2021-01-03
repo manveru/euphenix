@@ -19,9 +19,9 @@ end
 options = { renderer: Redcarpet::Render::HTML }
 
 optionparser = OptionParser.new do |o|
-  o.on('--prismjs') {
+  o.on('--prismjs') do
     options[:renderer] = RenderPrismCompatible.new
-  }
+  end
 end
 
 optionparser.parse!
@@ -55,7 +55,7 @@ ARGV.each do |file|
 
   if front
     yaml = "---\n" + front[0..-(front_match.size + 1)]
-    meta = YAML.safe_load(yaml, [Date, Time]) if front
+    meta = YAML.safe_load(yaml, [Date, Time], [], true) if front
     if meta['title']
       meta['slug'] ||= meta['title'].strip.gsub(
         %r([;/?:@=&"<>#%{}|\\^~\[\]]+), '-'
